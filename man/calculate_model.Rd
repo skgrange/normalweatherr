@@ -6,7 +6,7 @@
 \usage{
 calculate_model(list_input_data, variables = c("temp", "rh", "ws", "wd",
   "date_unix", "week", "weekday", "hour"), ntree = 200, mtry = 3,
-  nodesize = 3, verbose = TRUE)
+  nodesize = 3, verbose = TRUE, output = NA)
 }
 \arguments{
 \item{list_input_data}{\code{normalweatherr_data} list containing the prepared
@@ -23,6 +23,9 @@ forest decision tree.}
 \item{nodesize}{Minimum size of terminal nodes for the random forest model.}
 
 \item{verbose}{Should the random forest model print progress.}
+
+\item{output}{Directory to export the model object as an \code{.rds} file. 
+If not used, the model will not be exported to disc.}
 }
 \value{
 Named list containing two data frames and a model object with the 

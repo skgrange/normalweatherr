@@ -6,7 +6,7 @@
 meteorological conditions.}
 \usage{
 normalise_for_meteorology(list_model, df, variables = c("wd", "ws", "temp",
-  "rh", "hour", "weekday", "week"), n = 100, replace = FALSE)
+  "rh", "hour", "weekday", "week"), n = 100, replace = FALSE, output = NA)
 }
 \arguments{
 \item{list_model}{A \code{randomForest} model object, typically created with
@@ -20,6 +20,9 @@ normalise_for_meteorology(list_model, df, variables = c("wd", "ws", "temp",
 \item{n}{Number of times to sample \code{df}.}
 
 \item{replace}{Should \code{variables} be sampled with replacement?}
+
+\item{output}{Directory to export the model object as an \code{.rds} file. 
+If not used, the model will not be exported to disc.}
 }
 \value{
 Data frame.

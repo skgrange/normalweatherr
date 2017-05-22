@@ -84,6 +84,9 @@ prepare_input_data <- function(df) {
 #' 
 #' @param verbose Should the random forest model print progress. 
 #' 
+#' @param output Directory to export the model object as an \code{.rds} file. 
+#' If not used, the model will not be exported to disc. 
+#' 
 #' @return Named list containing two data frames and a model object with the 
 #' class \code{normalweatherr_model}. 
 #' 
@@ -94,7 +97,8 @@ calculate_model <- function(
   ntree = 200,
   mtry = 3, 
   nodesize = 3, 
-  verbose = TRUE
+  verbose = TRUE,
+  output = NA
   ) {
   
   if (!class(list_input_data) == "normalweatherr_data") 
@@ -113,6 +117,10 @@ calculate_model <- function(
   
   # For rf progress
   do.trace <- ifelse(verbose, 2, FALSE)
+  
+  # Get start time file for export
+  date_start <- format(lubridate::now(), usetz = TRUE)
+  date_start <- stringr::str_replace_all(date_start, " |:|-|/", "_")
   
   # Model
   list_model <- randomForest::randomForest(
@@ -137,6 +145,21 @@ calculate_model <- function(
   # Give class
   class(list_model) <- "normalweatherr_model"
   
+  # Export
+  if (!is.na(output[1])) {
+    
+    # Create directory if needed
+    dir.create(output, recursive = TRUE, showWarnings = FALSE)
+    
+    # Build file name
+    file_output <- stringr::str_c(date_start, "_normalweatherr_model.rds")
+    file_output <- file.path(output, file_output)
+    
+    # Export as an rds object
+    saveRDS(list_model, file_output)
+    
+  }
+  
   return(list_model)
   
 }
@@ -157,6 +180,9 @@ calculate_model <- function(
 #' 
 #' @param replace Should \code{variables} be sampled with replacement? 
 #' 
+#' @param output Directory to export the model object as an \code{.rds} file. 
+#' If not used, the model will not be exported to disc. 
+#' 
 #' @author Stuart K. Grange
 #' 
 #' @return Data frame. 
@@ -167,12 +193,17 @@ normalise_for_meteorology <- function(
   df, 
   variables = c("wd", "ws", "temp", "rh", "hour", "weekday", "week"),
   n = 100, 
-  replace = FALSE
+  replace = FALSE,
+  output = NA
   ) {
   
   # Check input
   if (!any(grepl("randomForest", class(list_model)))) 
     stop("Model needs to be of class 'randomForest'.", call. = FALSE)
+  
+  # Get start time file for export
+  date_start <- format(lubridate::now(), usetz = TRUE)
+  date_start <- stringr::str_replace_all(date_start, " |:|-|/", "_")
   
   # Do in parallel
   df <- plyr::ldply(1:n, function(x) 
@@ -187,6 +218,21 @@ normalise_for_meteorology <- function(
     dplyr::summarise(value_predict = mean(value_predict, na.rm = TRUE)) %>% 
     dplyr::ungroup() %>% 
     data.frame()
+  
+  # Export
+  if (!is.na(output[1])) {
+    
+    # Create directory if needed
+    dir.create(output, recursive = TRUE, showWarnings = FALSE)
+    
+    # Build file name
+    file_output <- stringr::str_c(date_start, "_normalweatherr_normalised.rds")
+    file_output <- file.path(output, file_output)
+    
+    # Export as an rds object
+    saveRDS(df, file_output)
+    
+  }
   
   # Free
   gc()
