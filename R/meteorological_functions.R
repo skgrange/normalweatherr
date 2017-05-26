@@ -1,18 +1,22 @@
-#' Function to prepare meteorological and air quality data for modelling. 
+#' Function to prepare meteorological and air quality data for modelling with
+#' the \strong{normalweatherr} package. 
 #' 
 #' \code{prepare_input_data} will check variable names, transform the parsed 
-#' \code{date} variable into other variables, impute missing data, and split
-#' the data set into the training and testing sets. 
+#' \code{date} variable into other variables, impute missing data, make correct
+#' data types, and split the input data set into training and testing sets. 
 #' 
 #' @author Stuart K. Grange
 #' 
 #' @param df Data frame containing \code{date} and \code{value} variables. 
 #' 
+#' @param fraction Fraction of observations to form the training set. Default is
+#' \code{0.8} for an 80/20 \% split for training and testing sets. 
+#' 
 #' @return A named list containing two data frames with the class 
 #' \code{normalweatherr_data}. 
 #' 
 #' @export
-prepare_input_data <- function(df) {
+prepare_input_data <- function(df, fraction = 0.8) {
   
   # Check input
   names <- names(df)
@@ -33,11 +37,20 @@ prepare_input_data <- function(df) {
   if (!any(grepl("week", names)))
     df[, "week"] <- lubridate::week(df[, "date"])
   
-  if (!any(grepl("weekday", names)))
+  # Also data types here
+  if (!any(grepl("weekday", names))) {
+    
     df[, "weekday"] <- wday_monday(df[, "date"])
+    df[, "weekday"] <- as.factor(df[, "weekday"])
+    
+  }
   
-  if (!any(grepl("hour", names)))
+  if (!any(grepl("hour", names))) {
+    
     df[, "hour"] <- lubridate::hour(df[, "date"])
+    df[, "hour"] <- as.factor(df[, "hour"])
+    
+  }
   
   # Impute numeric variables
   index <- sapply(df, function (x) is.numeric(x) | is.integer(x))
@@ -47,11 +60,11 @@ prepare_input_data <- function(df) {
     ifelse(is.na(x), median(x, na.rm = TRUE), x))
   
   # Sample to create test and training data
-  random_rows <- random_rows(df)
+  random_rows <- random_rows(df, fraction = fraction)
   df_training <- df[random_rows, ]
   df_testing <- df[-random_rows, ]
   
-  # Create list
+  # Create named list
   list_data <- list(
     training = df_training,
     testing = df_testing
@@ -70,9 +83,9 @@ prepare_input_data <- function(df) {
 #' @author Stuart K. Grange
 #' 
 #' @param list_input_data \code{normalweatherr_data} list containing the prepared
-#' training and testing sets. 
+#' training and testing sets; produced by \code{\link{prepare_input_data}}. 
 #' 
-#' @param variables Variables to include in the random forest model. 
+#' @param variables Variables to include in the model. 
 #' 
 #' @param ntree Number of trees to grow for the random forest model. Set 
 #' \code{ntree} to a smaller integer for testing. 
@@ -82,18 +95,22 @@ prepare_input_data <- function(df) {
 #' 
 #' @param nodesize Minimum size of terminal nodes for the random forest model. 
 #' 
-#' @param verbose Should the random forest model print progress. 
+#' @param verbose Should the random forest model print progress? 
 #' 
-#' @param output Directory to export the model object as an \code{.rds} file. 
-#' If not used, the model will not be exported to disc. 
+#' @param output File name to export the model object as an \code{.rds} file. 
+#' If not used, the model will not be exported to disc. Directories will be 
+#' created if necessary.  
 #' 
 #' @return Named list containing two data frames and a model object with the 
 #' class \code{normalweatherr_model}. 
+#' 
+#' @seealso \code{\link{prepare_input_data}}
 #' 
 #' @export
 calculate_model <- function(
   list_input_data, 
   variables = c("temp", "rh", "ws", "wd", "date_unix", "week", "weekday", "hour"),
+  model = "random_forest",
   ntree = 200,
   mtry = 3, 
   nodesize = 3, 
@@ -115,25 +132,58 @@ calculate_model <- function(
   df_training <- df_training[, variables]
   df_testing <- df_testing[, variables]
   
-  # For rf progress
-  do.trace <- ifelse(verbose, 2, FALSE)
+  # For export
+  if (!is.na(output[1])) {
+    
+    # Strip file name
+    output_directory <- dirname(output)
+    
+    # Create if needed
+    if (!dir.exists(output_directory)) 
+      dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
+    
+    # Ensure output is rds
+    output <- stringr::str_split_fixed(basename(output), "\\.", 2)[, 1]
+    output <- stringr::str_c(output, ".rds")
+    
+    # Add path again
+    output <- file.path(output_directory, output)
+     
+  }
   
-  # Get start time file for export
-  date_start <- format(lubridate::now(), usetz = TRUE)
-  date_start <- stringr::str_replace_all(date_start, " |:|-|/", "_")
-  
-  # Model
-  list_model <- randomForest::randomForest(
-    value ~ ., 
-    data = df_training,
-    na.action = na.omit,
-    do.trace = do.trace, 
-    keep.forest = TRUE, 
-    importance = TRUE,
-    mtry = mtry, 
-    nodesize = nodesize, 
-    ntree = ntree
-  )
+  if (grepl("forest", model, ignore.case = TRUE)) {
+    
+    # For rf progress
+    do.trace <- ifelse(verbose, 2, FALSE)
+    
+    # Model
+    list_model <- randomForest::randomForest(
+      value ~ ., 
+      data = df_training,
+      na.action = na.omit,
+      do.trace = do.trace, 
+      keep.forest = TRUE, 
+      importance = TRUE,
+      mtry = mtry, 
+      nodesize = nodesize, 
+      ntree = ntree
+    )
+    
+  } else if (grepl("vector", model, ignore.case = TRUE)) {
+    
+    list_model <- kernlab::ksvm(
+      value ~ ., 
+      data = df_training,
+      kernel = "rbfdot", 
+      C = 1, 
+      kpar = list(sigma = 1)
+    )
+    
+  } else {
+    
+    stop("'model' not recognised.", call. = FALSE)
+    
+  }
   
   # Build return
   list_model <- list(
@@ -146,19 +196,7 @@ calculate_model <- function(
   class(list_model) <- "normalweatherr_model"
   
   # Export
-  if (!is.na(output[1])) {
-    
-    # Create directory if needed
-    dir.create(output, recursive = TRUE, showWarnings = FALSE)
-    
-    # Build file name
-    file_output <- stringr::str_c(date_start, "_normalweatherr_model.rds")
-    file_output <- file.path(output, file_output)
-    
-    # Export as an rds object
-    saveRDS(list_model, file_output)
-    
-  }
+  if (!is.na(output[1])) saveRDS(list_model, output)
   
   return(list_model)
   
@@ -168,10 +206,10 @@ calculate_model <- function(
 #' Function to normalise a concentration variable based on "average" 
 #' meteorological conditions. 
 #' 
-#' @param list_model A \code{randomForest} model object, typically created with
+#' @param list_model A \code{normalweatherr_model} model object, created with 
 #' \code{\link{calculate_model}}. 
 #' 
-#' @param df Data frame to use for prediction. Typically created with 
+#' @param df Data frame to use for prediction. Created with 
 #' \code{\link{prepare_input_data}}. 
 #' 
 #' @param variables Variable to randomly sample. 
@@ -180,12 +218,15 @@ calculate_model <- function(
 #' 
 #' @param replace Should \code{variables} be sampled with replacement? 
 #' 
-#' @param output Directory to export the model object as an \code{.rds} file. 
-#' If not used, the model will not be exported to disc. 
+#' @param output File name to export the model object as an \code{.rds} file. 
+#' If not used, the model will not be exported to disc. Directories will be 
+#' created if necessary.  
 #' 
 #' @author Stuart K. Grange
 #' 
 #' @return Data frame. 
+#' 
+#' @seealso \code{\link{prepare_input_data}}, \code{\link{calculate_model}}
 #' 
 #' @export
 normalise_for_meteorology <- function(
@@ -197,13 +238,31 @@ normalise_for_meteorology <- function(
   output = NA
   ) {
   
-  # Check input
-  if (!any(grepl("randomForest", class(list_model)))) 
-    stop("Model needs to be of class 'randomForest'.", call. = FALSE)
+  # Get model type
+  model_type <- class(list_model)[1]
   
-  # Get start time file for export
-  date_start <- format(lubridate::now(), usetz = TRUE)
-  date_start <- stringr::str_replace_all(date_start, " |:|-|/", "_")
+  # Check input
+  if (!any(grepl("randomForest|ksvm", model_type))) 
+    stop("Model needs to be of class 'randomForest' or 'ksvm'.", call. = FALSE)
+  
+  # For export
+  if (!is.na(output[1])) {
+    
+    # Strip file name
+    output_directory <- dirname(output)
+    
+    # Create if needed
+    if (!dir.exists(output_directory)) 
+      dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
+    
+    # Ensure output is rds
+    output <- stringr::str_split_fixed(basename(output), "\\.", 2)[, 1]
+    output <- stringr::str_c(output, ".rds")
+    
+    # Add path again
+    output <- file.path(output_directory, output)
+    
+  }
   
   # Do in parallel
   df <- plyr::ldply(1:n, function(x) 
@@ -211,7 +270,8 @@ normalise_for_meteorology <- function(
       list_model, 
       df, 
       variables,
-      replace = replace
+      replace = replace,
+      model = model_type
     ), 
     .parallel = TRUE) %>% 
     dplyr::group_by(date) %>% 
@@ -220,19 +280,7 @@ normalise_for_meteorology <- function(
     data.frame()
   
   # Export
-  if (!is.na(output[1])) {
-    
-    # Create directory if needed
-    dir.create(output, recursive = TRUE, showWarnings = FALSE)
-    
-    # Build file name
-    file_output <- stringr::str_c(date_start, "_normalweatherr_normalised.rds")
-    file_output <- file.path(output, file_output)
-    
-    # Export as an rds object
-    saveRDS(df, file_output)
-    
-  }
+  if (!is.na(output[1])) saveRDS(list_model, output)
   
   # Free
   gc()
@@ -247,7 +295,8 @@ randomly_sample_meteorology <- function(
   list_model, 
   df, 
   variables = c("wd", "ws", "temp"),
-  replace
+  replace,
+  model
   ) {
   
   # Randomly sample observations
@@ -257,9 +306,22 @@ randomly_sample_meteorology <- function(
   # Transform data frame to include sampled variables
   df[variables] <- lapply(df[variables], function(x) x[index_rows])
   
-  value_predict <- unname(predict(list_model, df))
-  
-  if (class(value_predict) == "matrix") value_predict <- value_predict[, 1]
+  # Different precition logic
+  if (model == "randomForest.formula") {
+    
+    # Seems to be generic
+    value_predict <- unname(predict(list_model, df))
+    
+  } else if (model == "ksvm") {
+    
+    # Not generic and returns a matrix
+    value_predict <- unname(kernlab::predict(list_model, df))[, 1]
+    
+  } else {
+    
+    stop("Model not recognised.", call. = FALSE)
+    
+  }
   
   # Build data frame of predictions
   df <- data.frame(
@@ -272,36 +334,23 @@ randomly_sample_meteorology <- function(
 }
 
 
-# from deweather package
-## randomly sample from original data
-# doPred <- function(mydata, mod, metVars) {
-#   
-#   ## random samples 
-#   n <- nrow(mydata) 
-#   id <- sample(1 : n, n, replace = FALSE)
-#   
-#   ## new data with random samples
-#   mydata[metVars] <- lapply(mydata[metVars], function (x) x[id])
-#   
-#   prediction <- predict.gbm(mod, mydata, 1000)
-#   prediction <- data.frame(date = mydata$date, pred = prediction)
-#   
-#   return(prediction)
-#   
-# }
-
-
-
 #' Function to detect breakpoints in a data frame. 
 #' 
 #' @author Stuart K. Grange
 #' 
 #' @param df Data frame to detect breakpoints in. 
 #' 
+#' @param h Minimal segment size either given as fraction relative to the sample 
+#' size or as an integer giving the minimal number of observations in each 
+#' segment.
+#' 
+#' @param n Number of breaks to detect. Default is maximum number allowed by
+#' \code{h}. 
+#' 
 #' @return Data frame.
 #' 
 #' @export
-detect_breakpoints <- function(df) {
+detect_breakpoints <- function(df, h = 0.15, n = NULL) {
   
   # Check
   if (!any(grepl("date", names(df)))) 
@@ -314,7 +363,12 @@ detect_breakpoints <- function(df) {
   names(df) <- ifelse(names(df) == "value_predict", "value", names(df))
   
   # Do
-  breakpoints <- strucchange::breakpoints(value ~ date, data = df)
+  breakpoints <- strucchange::breakpoints(
+    value ~ date, 
+    data = df, 
+    h = h, 
+    breaks = n
+  )
   
   # Get the dates
   df <- df[breakpoints$breakpoints, c("date")]

@@ -9,10 +9,10 @@ normalise_for_meteorology(list_model, df, variables = c("wd", "ws", "temp",
   "rh", "hour", "weekday", "week"), n = 100, replace = FALSE, output = NA)
 }
 \arguments{
-\item{list_model}{A \code{randomForest} model object, typically created with
+\item{list_model}{A \code{normalweatherr_model} model object, created with 
 \code{\link{calculate_model}}.}
 
-\item{df}{Data frame to use for prediction. Typically created with 
+\item{df}{Data frame to use for prediction. Created with 
 \code{\link{prepare_input_data}}.}
 
 \item{variables}{Variable to randomly sample.}
@@ -21,8 +21,9 @@ normalise_for_meteorology(list_model, df, variables = c("wd", "ws", "temp",
 
 \item{replace}{Should \code{variables} be sampled with replacement?}
 
-\item{output}{Directory to export the model object as an \code{.rds} file. 
-If not used, the model will not be exported to disc.}
+\item{output}{File name to export the model object as an \code{.rds} file. 
+If not used, the model will not be exported to disc. Directories will be 
+created if necessary.}
 }
 \value{
 Data frame.
@@ -30,6 +31,9 @@ Data frame.
 \description{
 Function to normalise a concentration variable based on "average" 
 meteorological conditions.
+}
+\seealso{
+\code{\link{prepare_input_data}}, \code{\link{calculate_model}}
 }
 \author{
 Stuart K. Grange

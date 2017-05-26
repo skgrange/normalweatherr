@@ -2,12 +2,16 @@
 % Please edit documentation in R/meteorological_functions.R
 \name{prepare_input_data}
 \alias{prepare_input_data}
-\title{Function to prepare meteorological and air quality data for modelling.}
+\title{Function to prepare meteorological and air quality data for modelling with
+the \strong{normalweatherr} package.}
 \usage{
-prepare_input_data(df)
+prepare_input_data(df, fraction = 0.8)
 }
 \arguments{
 \item{df}{Data frame containing \code{date} and \code{value} variables.}
+
+\item{fraction}{Fraction of observations to form the training set. Default is
+\code{0.8} for an 80/20 \% split for training and testing sets.}
 }
 \value{
 A named list containing two data frames with the class 
@@ -15,8 +19,8 @@ A named list containing two data frames with the class
 }
 \description{
 \code{prepare_input_data} will check variable names, transform the parsed 
-\code{date} variable into other variables, impute missing data, and split
-the data set into the training and testing sets.
+\code{date} variable into other variables, impute missing data, make correct
+data types, and split the input data set into training and testing sets.
 }
 \author{
 Stuart K. Grange

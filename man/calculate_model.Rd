@@ -5,14 +5,14 @@
 \title{Function to model concentration based on meteorological and time variables.}
 \usage{
 calculate_model(list_input_data, variables = c("temp", "rh", "ws", "wd",
-  "date_unix", "week", "weekday", "hour"), ntree = 200, mtry = 3,
-  nodesize = 3, verbose = TRUE, output = NA)
+  "date_unix", "week", "weekday", "hour"), model = "random_forest",
+  ntree = 200, mtry = 3, nodesize = 3, verbose = TRUE, output = NA)
 }
 \arguments{
 \item{list_input_data}{\code{normalweatherr_data} list containing the prepared
-training and testing sets.}
+training and testing sets; produced by \code{\link{prepare_input_data}}.}
 
-\item{variables}{Variables to include in the random forest model.}
+\item{variables}{Variables to include in the model.}
 
 \item{ntree}{Number of trees to grow for the random forest model. Set 
 \code{ntree} to a smaller integer for testing.}
@@ -22,10 +22,11 @@ forest decision tree.}
 
 \item{nodesize}{Minimum size of terminal nodes for the random forest model.}
 
-\item{verbose}{Should the random forest model print progress.}
+\item{verbose}{Should the random forest model print progress?}
 
-\item{output}{Directory to export the model object as an \code{.rds} file. 
-If not used, the model will not be exported to disc.}
+\item{output}{File name to export the model object as an \code{.rds} file. 
+If not used, the model will not be exported to disc. Directories will be 
+created if necessary.}
 }
 \value{
 Named list containing two data frames and a model object with the 
@@ -33,6 +34,9 @@ class \code{normalweatherr_model}.
 }
 \description{
 Function to model concentration based on meteorological and time variables.
+}
+\seealso{
+\code{\link{prepare_input_data}}
 }
 \author{
 Stuart K. Grange

@@ -4,10 +4,17 @@
 \alias{detect_breakpoints}
 \title{Function to detect breakpoints in a data frame.}
 \usage{
-detect_breakpoints(df)
+detect_breakpoints(df, h = 0.15, n = NULL)
 }
 \arguments{
 \item{df}{Data frame to detect breakpoints in.}
+
+\item{h}{Minimal segment size either given as fraction relative to the sample 
+size or as an integer giving the minimal number of observations in each 
+segment.}
+
+\item{n}{Number of breaks to detect. Default is maximum number allowed by
+\code{h}.}
 }
 \value{
 Data frame.
