@@ -280,7 +280,7 @@ normalise_for_meteorology <- function(
     data.frame()
   
   # Export
-  if (!is.na(output[1])) saveRDS(list_model, output)
+  if (!is.na(output[1])) saveRDS(df, output)
   
   # Free
   gc()
