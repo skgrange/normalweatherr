@@ -7,7 +7,6 @@
 #' 
 #' @return Numeric vector.
 #' 
-#' @export
 wday_monday <- function(x) {
   
   x <- lubridate::wday(x)

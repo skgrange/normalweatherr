@@ -15,4 +15,3 @@
   2. Randomly allocate the meteorological and time variables used in the model to predict concentrations based on these sampled variables. When this process is repeated hundreds of times and then aggregated, the result is a trend which represents "average" meteorology/weather.
   
   3. Continue on with appropriate trend analysis. Breakpoints, etc...
-
