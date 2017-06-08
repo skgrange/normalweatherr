@@ -37,20 +37,17 @@ prepare_input_data <- function(df, fraction = 0.8) {
   if (!any(grepl("week", names)))
     df[, "week"] <- lubridate::week(df[, "date"])
   
-  # Also data types here
-  if (!any(grepl("weekday", names))) {
-    
+  if (!any(grepl("weekday", names)))
     df[, "weekday"] <- wday_monday(df[, "date"])
-    df[, "weekday"] <- as.factor(df[, "weekday"])
-    
-  }
   
-  if (!any(grepl("hour", names))) {
-    
+  if (!any(grepl("hour", names)))
     df[, "hour"] <- lubridate::hour(df[, "date"])
-    df[, "hour"] <- as.factor(df[, "hour"])
-    
-  }
+  
+  if (!any(grepl("month", names)))
+    df[, "month"] <- lubridate::month(df[, "date"])
+  
+  if (!any(grepl("day_julian", names)))
+    df[, "day_julian"] <- lubridate::yday(df[, "date"])
   
   # Impute numeric variables
   index <- sapply(df, function (x) is.numeric(x) | is.integer(x))
@@ -332,6 +329,24 @@ randomly_sample_meteorology <- function(
   return(df)
   
 }
+
+
+# ## randomly sample from original data
+# doPred <- function(mydata, mod, metVars) {
+#   
+#   ## random samples 
+#   n <- nrow(mydata) 
+#   id <- sample(1 : n, n, replace = FALSE)
+#   
+#   ## new data with random samples
+#   mydata[metVars] <- lapply(mydata[metVars], function (x) x[id])
+#   
+#   prediction <- predict.gbm(mod, mydata, 1000)
+#   prediction <- data.frame(date = mydata$date, pred = prediction)
+#   
+#   return(prediction)
+#   
+# }
 
 
 #' Function to detect breakpoints in a data frame. 
