@@ -2,8 +2,8 @@ Package: normalweatherr
 Type: Package
 Title: Package to conduct meteorological/weather normalisation on air quality
     data
-Version: 0.0.8
-Date: 2017-06-08
+Version: 0.0.9
+Date: 2017-06-09
 Authors@R: person("Stuart", "Grange", email = "s.k.grange@gmail.com", 
     role = c("cre", "aut"))
 Maintainer: Stuart K. Grange <s.k.grange@gmail.com>
@@ -23,6 +23,7 @@ Imports:
     kernlab,
     doMC,
     strucchange,
+    gbm,
     openair
 Suggests:
 RoxygenNote: 6.0.1

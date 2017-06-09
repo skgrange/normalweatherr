@@ -84,8 +84,8 @@ prepare_input_data <- function(df, fraction = 0.8) {
 #' 
 #' @param variables Variables to include in the model. 
 #' 
-#' @param ntree Number of trees to grow for the random forest model. Set 
-#' \code{ntree} to a smaller integer for testing. 
+#' @param ntree Number of trees to grow for the random forest or boosted 
+#' regression tree model. Set \code{ntree} to a smaller integer for testing. 
 #' 
 #' @param mtry Number of variables randomly sampled for splitting the random 
 #' forest decision tree. 
@@ -108,7 +108,7 @@ calculate_model <- function(
   list_input_data, 
   variables = c("temp", "rh", "ws", "wd", "date_unix", "week", "weekday", "hour"),
   model = "random_forest",
-  ntree = 200,
+  ntree = NA,
   mtry = 3, 
   nodesize = 3, 
   verbose = TRUE,
@@ -116,7 +116,13 @@ calculate_model <- function(
   ) {
   
   if (!class(list_input_data) == "normalweatherr_data") 
-    stop("Not of correct class.", call. = FALSE)
+    stop("Input is not of correct class...", call. = FALSE)
+  
+  # Defaults for the different modelling methods
+  ntree <- ifelse(
+    grepl("forest", model, ignore.case = TRUE) & is.na(ntree),
+    200, 1000
+  )
   
   # Get pieces
   df_training <- list_input_data$training
@@ -174,6 +180,23 @@ calculate_model <- function(
       kernel = "rbfdot", 
       C = 1, 
       kpar = list(sigma = 1)
+    )
+    
+  } else if (grepl("boosted", model, ignore.case = TRUE)) {
+    
+    # Use values from David's dweather package for now
+    list_model <- gbm::gbm(
+      value ~.,
+      data = df_training,
+      distribution = "gaussian",
+      n.trees = ntree,
+      shrinkage = 0.1, 
+      interaction.depth = 10,
+      bag.fraction = 0.7,
+      train.fraction = 1,
+      n.minobsinnode = 10,
+      keep.data = TRUE,
+      verbose = verbose
     )
     
   } else {
@@ -239,9 +262,15 @@ normalise_for_meteorology <- function(
   model_type <- class(list_model)[1]
   
   # Check input
-  if (!any(grepl("randomForest|ksvm", model_type))) 
-    stop("Model needs to be of class 'randomForest' or 'ksvm'.", call. = FALSE)
-  
+  if (!any(grepl("randomForest|ksvm|gbm", model_type))) {
+    
+    stop(
+      "Model needs to be of class 'randomForest', 'ksvm', or 'gbm'.", 
+      call. = FALSE
+    )
+    
+  }
+    
   # For export
   if (!is.na(output[1])) {
     
@@ -313,6 +342,15 @@ randomly_sample_meteorology <- function(
     
     # Not generic and returns a matrix
     value_predict <- unname(kernlab::predict(list_model, df))[, 1]
+    
+  } else if (model == "gbm") {
+    
+    # Use a vector but needs an extra argument, comes from model object
+    value_predict <- gbm::predict.gbm(
+      list_model, 
+      df, 
+      n.trees = length(list_model$trees)
+    )
     
   } else {
     

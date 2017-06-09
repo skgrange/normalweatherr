@@ -6,7 +6,7 @@
 \usage{
 calculate_model(list_input_data, variables = c("temp", "rh", "ws", "wd",
   "date_unix", "week", "weekday", "hour"), model = "random_forest",
-  ntree = 200, mtry = 3, nodesize = 3, verbose = TRUE, output = NA)
+  ntree = NA, mtry = 3, nodesize = 3, verbose = TRUE, output = NA)
 }
 \arguments{
 \item{list_input_data}{\code{normalweatherr_data} list containing the prepared
@@ -14,8 +14,8 @@ training and testing sets; produced by \code{\link{prepare_input_data}}.}
 
 \item{variables}{Variables to include in the model.}
 
-\item{ntree}{Number of trees to grow for the random forest model. Set 
-\code{ntree} to a smaller integer for testing.}
+\item{ntree}{Number of trees to grow for the random forest or boosted 
+regression tree model. Set \code{ntree} to a smaller integer for testing.}
 
 \item{mtry}{Number of variables randomly sampled for splitting the random 
 forest decision tree.}
