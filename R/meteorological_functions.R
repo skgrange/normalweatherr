@@ -118,11 +118,13 @@ calculate_model <- function(
   if (!class(list_input_data) == "normalweatherr_data") 
     stop("Input is not of correct class...", call. = FALSE)
   
-  # Defaults for the different modelling methods
-  ntree <- ifelse(
-    grepl("forest", model, ignore.case = TRUE) & is.na(ntree),
-    200, 1000
-  )
+  # Defaults for the different modeling methods
+  if (is.na(ntree)) {
+    
+    if (grepl("forest", model, ignore.case = TRUE)) ntree <- 200
+    if (grepl("boosted", model, ignore.case = TRUE)) ntree <- 1000
+    
+  }
   
   # Get pieces
   df_training <- list_input_data$training
