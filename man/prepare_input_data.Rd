@@ -5,7 +5,7 @@
 \title{Function to prepare meteorological and air quality data for modelling with
 the \strong{normalweatherr} package.}
 \usage{
-prepare_input_data(df, fraction = 0.8)
+prepare_input_data(df, impute = TRUE, fraction = 0.8)
 }
 \arguments{
 \item{df}{Data frame containing \code{date} and \code{value} variables.}

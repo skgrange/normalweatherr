@@ -16,16 +16,19 @@
 #' \code{normalweatherr_data}. 
 #' 
 #' @export
-prepare_input_data <- function(df, fraction = 0.8) {
+prepare_input_data <- function(df, impute = TRUE, fraction = 0.8) {
   
-  # Check input
+  # Check input, df_tbl will not simplify when [, ] are used
+  if (any(grepl("tbl", class(df)))) df <- data.frame(df)
+  
+  # Add variables if they do not exist
   names <- names(df)
   
   if (!any(grepl("value", names))) 
-    stop("Data must contain a `value`` variable.", call. = FALSE)
+    stop("Data must contain a `value` variable.", call. = FALSE)
   
   if (!any(grepl("date", names))) 
-    stop("Data must contain a `date`` variable.", call. = FALSE)
+    stop("Data must contain a `date` variable.", call. = FALSE)
   
   if (!any(grepl("POSIXct", class(df$date))))
     stop("`date` variable needs to be a parsed date (POSIXct).", call. = FALSE)
@@ -50,11 +53,15 @@ prepare_input_data <- function(df, fraction = 0.8) {
     df[, "day_julian"] <- lubridate::yday(df[, "date"])
   
   # Impute numeric variables
-  index <- sapply(df, function (x) is.numeric(x) | is.integer(x))
-  
-  # Median
-  df[index] <- lapply(df[index], function(x) 
-    ifelse(is.na(x), median(x, na.rm = TRUE), x))
+  if (impute) {
+    
+    index <- sapply(df, function (x) is.numeric(x) | is.integer(x))
+    
+    # Median
+    df[index] <- lapply(df[index], function(x) 
+      ifelse(is.na(x), median(x, na.rm = TRUE), x))
+    
+  }
   
   # Sample to create test and training data
   random_rows <- random_rows(df, fraction = fraction)
@@ -116,7 +123,7 @@ calculate_model <- function(
   ) {
   
   if (!class(list_input_data) == "normalweatherr_data") 
-    stop("Input is not of correct class...", call. = FALSE)
+    stop("Input is not of correct class.", call. = FALSE)
   
   # Defaults for the different modeling methods
   if (is.na(ntree)) {
@@ -126,7 +133,7 @@ calculate_model <- function(
     
   }
   
-  # Get pieces
+  # Get pieces of list, easier to reference like this
   df_training <- list_input_data$training
   df_testing <- list_input_data$testing
 
@@ -302,9 +309,9 @@ normalise_for_meteorology <- function(
       model = model_type
     ), 
     .parallel = TRUE) %>% 
-    dplyr::group_by(date) %>% 
-    dplyr::summarise(value_predict = mean(value_predict, na.rm = TRUE)) %>% 
-    dplyr::ungroup() %>% 
+    group_by(date) %>% 
+    summarise(value_predict = mean(value_predict, na.rm = TRUE)) %>% 
+    ungroup() %>% 
     data.frame()
   
   # Export
@@ -409,7 +416,7 @@ detect_breakpoints <- function(df, h = 0.15, n = NULL) {
   
   # Check
   if (!any(grepl("date", names(df)))) 
-    stop("Data must contain a `date`` variable.", call. = FALSE)
+    stop("Data must contain a `date` variable.", call. = FALSE)
   
   if (!any(grepl("POSIXct", class(df$date))))
     stop("`date` variable needs to be a parsed date (POSIXct).", call. = FALSE)
