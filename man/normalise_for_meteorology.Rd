@@ -6,7 +6,7 @@
 meteorological conditions.}
 \usage{
 normalise_for_meteorology(list_model, df, variables = c("wd", "ws", "temp",
-  "rh", "hour", "weekday", "week"), n = 100, replace = FALSE, output = NA)
+  "weekday", "month"), n = 100, replace = FALSE, output = NA)
 }
 \arguments{
 \item{list_model}{A \code{normalweatherr_model} model object, created with 

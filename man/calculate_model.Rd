@@ -4,15 +4,18 @@
 \alias{calculate_model}
 \title{Function to model concentration based on meteorological and time variables.}
 \usage{
-calculate_model(list_input_data, variables = c("temp", "rh", "ws", "wd",
-  "date_unix", "week", "weekday", "hour"), model = "random_forest",
-  ntree = NA, mtry = 3, nodesize = 3, verbose = TRUE, output = NA)
+calculate_model(list_input_data, variables = c("air_temp", "ws", "wd",
+  "date_unix", "month", "weekday", "hour"), model = "rf", ntree = NA,
+  mtry = 3, nodesize = 3, verbose = TRUE, output = NA)
 }
 \arguments{
 \item{list_input_data}{\code{normalweatherr_data} list containing the prepared
 training and testing sets; produced by \code{\link{prepare_input_data}}.}
 
 \item{variables}{Variables to include in the model.}
+
+\item{model}{Model type to use. Can be: \code{rf}, \code{svm}, \code{gam}, 
+\code{gbm}.}
 
 \item{ntree}{Number of trees to grow for the random forest or boosted 
 regression tree model. Set \code{ntree} to a smaller integer for testing.}

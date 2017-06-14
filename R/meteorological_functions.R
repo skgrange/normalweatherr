@@ -91,6 +91,9 @@ prepare_input_data <- function(df, impute = TRUE, fraction = 0.8) {
 #' 
 #' @param variables Variables to include in the model. 
 #' 
+#' @param model Model type to use. Can be: \code{rf}, \code{svm}, \code{gam}, 
+#' \code{gbm}. 
+#' 
 #' @param ntree Number of trees to grow for the random forest or boosted 
 #' regression tree model. Set \code{ntree} to a smaller integer for testing. 
 #' 
@@ -113,8 +116,8 @@ prepare_input_data <- function(df, impute = TRUE, fraction = 0.8) {
 #' @export
 calculate_model <- function(
   list_input_data, 
-  variables = c("temp", "rh", "ws", "wd", "date_unix", "week", "weekday", "hour"),
-  model = "random_forest",
+  variables = c("air_temp", "ws", "wd", "date_unix", "month", "weekday", "hour"),
+  model = "rf",
   ntree = NA,
   mtry = 3, 
   nodesize = 3, 
@@ -125,11 +128,14 @@ calculate_model <- function(
   if (!class(list_input_data) == "normalweatherr_data") 
     stop("Input is not of correct class.", call. = FALSE)
   
+  # Parse argument for logic
+  model <- stringr::str_to_lower(model)
+  
   # Defaults for the different modeling methods
   if (is.na(ntree)) {
     
-    if (grepl("forest", model, ignore.case = TRUE)) ntree <- 200
-    if (grepl("boosted", model, ignore.case = TRUE)) ntree <- 1000
+    if (model == "rf") ntree <- 200
+    if (model == "gbm") ntree <- 1000
     
   }
   
@@ -163,7 +169,7 @@ calculate_model <- function(
      
   }
   
-  if (grepl("forest", model, ignore.case = TRUE)) {
+  if (model == "rf") {
     
     # For rf progress
     do.trace <- ifelse(verbose, 2, FALSE)
@@ -181,7 +187,7 @@ calculate_model <- function(
       ntree = ntree
     )
     
-  } else if (grepl("vector", model, ignore.case = TRUE)) {
+  } else if (model == "svm") {
     
     list_model <- kernlab::ksvm(
       value ~ ., 
@@ -191,7 +197,7 @@ calculate_model <- function(
       kpar = list(sigma = 1)
     )
     
-  } else if (grepl("boosted", model, ignore.case = TRUE)) {
+  } else if (model == "gbm") {
     
     # Use values from David's dweather package for now
     list_model <- gbm::gbm(
@@ -208,16 +214,45 @@ calculate_model <- function(
       verbose = verbose
     )
     
+  } else if (model == "gam")  {
+    
+    # Get inputs
+    smooth_terms <- variables[variables != "value"]
+    
+    # Build formula with smooth components
+    smooth_terms_collaped <- stringr::str_c(
+      "s(", smooth_terms, ", bs = 'tp', k = 14)", 
+      collapse = " + "
+    )
+    
+    smooth_terms_collaped <- stringr::str_replace(
+      smooth_terms_collaped, 
+      "s\\(weekday, bs = 'tp', k = 14\\)", 
+      "s(weekday, bs = 'tp', k = 7)"
+    )
+    
+    formula <- stringr::str_c(
+      "value ~ ", 
+      smooth_terms_collaped
+    )
+
+    # Do
+    list_model <- mgcv::gam(
+      as.formula(formula),
+      data = df_training,
+      na.action = na.omit
+    )
+
   } else {
     
-    stop("'model' not recognised.", call. = FALSE)
+    stop("`model` not recognised.", call. = FALSE)
     
   }
   
   # Build return
   list_model <- list(
-    data_training = df_training,
-    data_testing = df_testing,
+    training = df_training,
+    testing = df_testing,
     model = list_model
   )
   
@@ -261,7 +296,7 @@ calculate_model <- function(
 normalise_for_meteorology <- function(
   list_model, 
   df, 
-  variables = c("wd", "ws", "temp", "rh", "hour", "weekday", "week"),
+  variables = c("wd", "ws", "temp", "weekday", "month"),
   n = 100, 
   replace = FALSE,
   output = NA
@@ -271,10 +306,10 @@ normalise_for_meteorology <- function(
   model_type <- class(list_model)[1]
   
   # Check input
-  if (!any(grepl("randomForest|ksvm|gbm", model_type))) {
+  if (!any(grepl("randomForest|ksvm|gbm|gam", model_type))) {
     
     stop(
-      "Model needs to be of class 'randomForest', 'ksvm', or 'gbm'.", 
+      "Model needs to be of class `randomForest`, `ksvm`, `gbm`, or `gam`.", 
       call. = FALSE
     )
     
@@ -342,7 +377,7 @@ randomly_sample_meteorology <- function(
   df[variables] <- lapply(df[variables], function(x) x[index_rows])
   
   # Different precition logic
-  if (model == "randomForest.formula") {
+  if (model %in% c("randomForest.formula", "gam")) {
     
     # Seems to be generic
     value_predict <- unname(predict(list_model, df))
