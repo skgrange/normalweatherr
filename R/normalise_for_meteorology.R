@@ -89,6 +89,10 @@ normalise_for_meteorology <- function(list_model, df, variables, n = 100,
 randomly_sample_meteorology <- function(list_model, df, variables, replace, 
                                         model) {
   
+  # Use date unix if date does not exist in input data frame
+  if ("date_unix" %in% names(df) & !"date" %in% names(df))
+    df[, "date"] <- df[, "date_unix"]
+  
   # Randomly sample observations
   n_rows <- nrow(df)
   index_rows <- sample(1:n_rows, replace = replace)
@@ -124,7 +128,7 @@ randomly_sample_meteorology <- function(list_model, df, variables, replace,
   
   # Build data frame of predictions
   df <- data.frame(
-    date = df$date,
+    date = df[, "date"],
     value_predict = value_predict
   )
   

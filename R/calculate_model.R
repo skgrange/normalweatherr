@@ -111,9 +111,11 @@ calculate_model <- function(list_input_data, variables, model = "rf", ntree = NA
     list_model <- kernlab::ksvm(
       value ~ ., 
       data = df_training,
+      type = "eps-bsvr",
       kernel = "rbfdot", 
-      C = 1, 
-      kpar = list(sigma = 1)
+      C = 5, 
+      kpar = list(sigma = 1),
+      epsilon = 0.1
     )
     
   } else if (model == "gbm") {
