@@ -5,14 +5,17 @@
 #' 
 #' @param x Date vector.
 #' 
+#' @param as.factor Should the return be a factor? 
+#' 
 #' @return Numeric vector.
 #' 
-wday_monday <- function(x) {
+wday_monday <- function(x, as.factor = FALSE) {
   
   x <- lubridate::wday(x)
   x <- x - 1
   x <- ifelse(x == 0, 7, x)
-  x
+  if (as.factor) x <- factor(x, levels = 1:7, ordered = TRUE)
+  return(x)
   
 }
 
@@ -31,7 +34,6 @@ wday_monday <- function(x) {
 #' 
 #' @author Stuart K. Grange
 #' 
-#' @export
 random_rows <- function(df, fraction = 0.8) {
   
   # Get n
@@ -68,3 +70,10 @@ register_cores <- function(cores = NA) {
 #' @importFrom openair timeAverage
 #' @export
 openair::timeAverage
+
+
+mode_average <- function (x, na.rm = FALSE) {
+  if (na.rm) x <- na.omit(x)
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}

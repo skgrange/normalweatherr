@@ -5,10 +5,12 @@
 \title{Function to get weekday number from a date where \code{1} is Monday and 
 \code{7} is Sunday.}
 \usage{
-wday_monday(x)
+wday_monday(x, as.factor = FALSE)
 }
 \arguments{
 \item{x}{Date vector.}
+
+\item{as.factor}{Should the return be a factor?}
 }
 \value{
 Numeric vector.
