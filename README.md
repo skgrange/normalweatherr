@@ -28,6 +28,19 @@
   
   4. Continue on with appropriate trend analysis. Breakpoints, Theil-Sen estimations, etc...
 
+## Examples
+
+The plots below show meteorological normalised trends for NO~2~ and NO~x~ at London Marylebone Road between 1997 and 2016. Due to the normalisation procedure, these plots represent the *emissions* at London Marylebone Road. 
+
+![](inst/extdata/images/no2_rf_annotated.png)
+![](inst/extdata/images/nox_rf_annotated.png)
+
+These trends are not suitable for formal trend tests because they are not monotonic, *i.e.* they are not constantly changing with time. However, the breakpoints can be explained by changes in traffic management. 
+
+NO~2~ shows an increase in emissions when the London congestion charge was introduced. Although this may be counter-intuitive, it can be explained by a rather large increase in bus traffic. Diesel buses in the early 2000s also emitted more NO~2~ than passenger cars. The reason for the abrupt decrease in 2012 is unknown at the moment. 
+
+The NO~x~ trend demonstrates that despite all the efforts gone into emission control, NO~x~ emissions at London Marylebone Road have remained stable since the early 2000s. 
+
 ## See also
 
   - [**deweather**](https://github.com/davidcarslaw/deweather)

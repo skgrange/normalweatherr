@@ -3,6 +3,7 @@
 export("%>%")
 export(add_date_variables)
 export(calculate_model)
+export(clip_edges)
 export(detect_breakpoints)
 export(normalise_for_meteorology)
 export(register_cores)

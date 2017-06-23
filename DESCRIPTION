@@ -2,8 +2,8 @@ Package: normalweatherr
 Type: Package
 Title: Package to conduct meteorological/weather normalisation on air quality
     data
-Version: 0.0.14
-Date: 2017-06-22
+Version: 0.0.15
+Date: 2017-06-23
 Authors@R: person("Stuart", "Grange", email = "s.k.grange@gmail.com", 
     role = c("cre", "aut"))
 Maintainer: Stuart K. Grange <s.k.grange@gmail.com>
