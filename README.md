@@ -37,7 +37,7 @@ The plots below show meteorological normalised trends for NO<sub>2</sub> and NO<
 
 These trends are not suitable for formal trend tests because they are not monotonic, *i.e.* they are not constantly changing with time. However, the breakpoints can be explained by changes in traffic management. 
 
-NO<sub>2</sub> shows an increase in emissions when the London congestion charge was introduced. Although this may be counter-intuitive, it can be explained by a rather large increase in bus traffic. Diesel buses in the early 2000s also emitted more NO<sub>2</sub> than passenger cars. The reason for the abrupt decrease in 2012 is unknown at the moment. 
+NO<sub>2</sub> shows an increase in emissions when the London congestion charge was introduced. Although this may be counter-intuitive, it can be explained by a large increase in bus traffic. Diesel buses in the early 2000s also emitted more primary NO<sub>2</sub> than passenger cars. The reason for the abrupt decrease in May 2011 is unknown to me at the moment. 
 
 The NO<sub>x</sub> trend demonstrates that despite all the efforts gone into emission control, NO<sub>x</sub> emissions at London Marylebone Road have remained stable since the early 2000s. 
 
