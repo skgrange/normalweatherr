@@ -6,13 +6,10 @@
 variables in preparation for modelling with the \strong{normalweatherr} 
 package.}
 \usage{
-add_date_variables(df, impute = TRUE)
+add_date_variables(df)
 }
 \arguments{
 \item{df}{Data frame.}
-
-\item{impute}{Should missing values be imputed? Numeric variables will be 
-imputed with their median while categorical variables the mode will be used.}
 }
 \value{
 Data frame.
