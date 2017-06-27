@@ -4,7 +4,7 @@
 \alias{split_input_data}
 \title{Function to split an input data frame into training and testing sets.}
 \usage{
-split_input_data(df, impute = TRUE, fraction = 0.8)
+split_input_data(df, fraction = 0.8)
 }
 \arguments{
 \item{df}{Data frame containing \code{date} and \code{value} variables. 

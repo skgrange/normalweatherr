@@ -29,7 +29,7 @@
 #' }
 #' 
 #' @export
-split_input_data <- function(df, impute = TRUE, fraction = 0.8) {
+split_input_data <- function(df, fraction = 0.8) {
   
   # Check data frame input, df_tbl will not simplify when [, ] are used
   if (any(grepl("tbl", class(df)))) df <- data.frame(df)

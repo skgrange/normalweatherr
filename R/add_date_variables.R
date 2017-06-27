@@ -8,12 +8,15 @@
 #' 
 #' @param df Data frame. 
 #' 
+#' @param impute Should missing values be imputed? Numeric variables will be 
+#' imputed with their median while categorical variables the mode will be used.
+#' 
 #' @return Data frame. 
 #' 
 #' @author Stuart K. Grange
 #' 
 #' @export
-add_date_variables <- function(df) {
+add_date_variables <- function(df, impute = TRUE) {
   
   # Check data frame input, df_tbl will not simplify when [, ] are used
   if (any(grepl("tbl", class(df)))) df <- data.frame(df)
