@@ -32,8 +32,7 @@
 
 The plots below show meteorological normalised trends for NO<sub>2</sub> and NO<sub>x</sub> at London Marylebone Road between 1997 and 2016. Due to the normalisation procedure, these plots represent the *emissions* at London Marylebone Road. 
 
-![](inst/extdata/images/no2_rf_annotated.png)
-![](inst/extdata/images/nox_rf_annotated.png)
+![](inst/extdata/images/my1_plots.png)
 
 These trends are not suitable for formal trend tests because they are not monotonic, *i.e.* they are not constantly changing with time. However, the breakpoints can be explained by changes in traffic management. 
 
