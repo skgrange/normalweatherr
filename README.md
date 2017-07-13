@@ -8,6 +8,21 @@
 
 **normalweatherr** is an R package to conduct meteorological/weather normalisation on air quality so trends and interventions can be investigated in a robust way. 
 
+## Installation
+
+To install the development version the [**devtools**](https://github.com/hadley/devtools) package will need to be installed first. Then:
+
+```
+# Load helper package
+library(devtools)
+
+# Install dependencies
+install_github("skgrange/enlightenr")
+
+# Install normalweatherr
+install_github("skgrange/normalweatherr")
+```
+
 ## Steps for usage
 
   1. Gain a mostly complete time-series of a numeric value with other variables which could explain variation of the numeric value. In the air quality domain, `value` will usually be a pollutant concentration and the other variables will be meteorological variables such as wind speed, wind direction, atmospheric temperature, and atmospheric pressure. However other variables could be used which might explain pollutant concentrations. The time-series will usually be at hourly or daily resolution. 
@@ -39,6 +54,70 @@ These trends are not suitable for formal trend tests because they are not monoto
 NO<sub>2</sub> shows an increase in emissions when the London congestion charge was introduced. Although this may be counter-intuitive, it can be explained by a large increase in bus traffic. Diesel buses in the early 2000s also emitted more primary NO<sub>2</sub> than passenger cars. The reason for the abrupt decrease in May 2011 is unknown to me at the moment. 
 
 The NO<sub>x</sub> trend demonstrates that despite all the efforts gone into emission control, NO<sub>x</sub> emissions at London Marylebone Road have remained stable since the early 2000s. 
+
+### **normalweatherr** usage example
+
+After installation, this example can be run using prepared data from London Marylebone Road (NO<sub>2</sub>) and London Heathrow (the surface meteorological data). The `value` variable is NO<sub>2</sub> concentration in &mu;g m<sup>-3</sup>. 
+
+```
+# Load packages
+library(dplyr)
+library(normalweatherr)
+library(openair)
+
+# Load a prepared data frame
+file <- "http://skgrange.github.io/www/data/london_marylebone_road_no2_data.rds"
+data_london <- readRDS(url(file))
+
+# Look at data
+glimpse(data_london)
+
+# Make modelling reproducible
+set.seed(123)
+
+# Prepare data, add the time variables 
+data_london <- add_date_variables(data_london)
+
+# and split into the training and testing sets
+list_input_data <- split_input_data(data_london)
+
+# What are the names of the sets? 
+names(list_input_data)
+
+# Build model
+# What variables will be used?
+variables <- c("wd", "ws", "air_temp", "day_julian", "date_unix", "weekday")
+
+# Build the random forest model
+model_rf <- calculate_model(
+  list_input_data, 
+  variables = variables, 
+  mtry = 3,
+  nodesize = 3,
+  model = "rf"
+)
+
+# Check
+names(model_rf)
+
+# Print model things
+model_rf$model
+# Good performance, r2 ~80 %
+
+# Normalise for meteorology
+# Allow for parallel processing, a lot quicker
+register_cores()
+
+data_normalised <- normalise_for_meteorology(
+  model_rf$model, 
+  data_london, 
+  variables = setdiff(variables, "date_unix"),
+  n = 1000
+)
+
+# Plot normalised time series
+timePlot(data_normalised, "value_predict", key = FALSE, cols = "dodgerblue")
+```
 
 ## See also
 
