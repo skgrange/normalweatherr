@@ -1,4 +1,4 @@
-#' Function to ``clip'' the edges of a time-series. 
+#' Function to ''clip'' the edges of a time-series. 
 #' 
 #' @author Stuart K. Grange
 #' 

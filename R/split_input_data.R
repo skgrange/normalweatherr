@@ -1,7 +1,7 @@
 #' Function to split an input data frame into training and testing sets. 
 #' 
 #' Use \code{set.seed} to ensure the splitting of the training and testing sets
-#' is reproducable. 
+#' is reproducible. 
 #' 
 #' @author Stuart K. Grange
 #' 
@@ -20,7 +20,7 @@
 #' @examples 
 #' \dontrun{
 #' 
-#' # Make modelling reproducable
+#' # Make modelling reproducible
 #' set.seed(123)
 #' 
 #' # Prepare data for modelling

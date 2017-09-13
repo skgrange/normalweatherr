@@ -5,7 +5,7 @@
 #' \code{\link{calculate_model}}. 
 #' 
 #' @param df Data frame to use for prediction. Created with 
-#' \code{\link{prepare_input_data}}. 
+#' \code{\link{split_input_data}}. 
 #' 
 #' @param variables Variables to include in the randomly sample. 
 #' 
@@ -21,7 +21,21 @@
 #' 
 #' @return Data frame. 
 #' 
-#' @seealso \code{\link{prepare_input_data}}, \code{\link{calculate_model}}
+#' @seealso \code{\link{split_input_data}}, \code{\link{calculate_model}}
+#' 
+#' @examples 
+#' \dontrun{
+#' 
+#' # Create a meteorologically normalised time series
+#' data_normalised <- normalise_for_meteorology(
+#'   list_model = list_input_data$model, 
+#'   df = data_swiss_daily, 
+#'   variables = setdiff(variables, "date_unix"),
+#'   n = 1000,
+#'   output = NA
+#' )
+#' 
+#' }
 #' 
 #' @export
 normalise_for_meteorology <- function(list_model, df, variables, n = 100, 

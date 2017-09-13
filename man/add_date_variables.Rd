@@ -9,7 +9,7 @@ package.}
 add_date_variables(df, impute = TRUE)
 }
 \arguments{
-\item{df}{Data frame.}
+\item{df}{Data frame containing air quality data.}
 
 \item{impute}{Should missing values be imputed? Numeric variables will be 
 imputed with their median while categorical variables the mode will be used.}
@@ -21,6 +21,15 @@ Data frame.
 \code{prepare_input_data} will check variable names, transform the parsed 
 \code{date} variable into other variables, impute missing data, and make 
 correct data types.
+}
+\examples{
+\dontrun{
+
+# Prepare data for modelling
+data_swiss_daily <- add_date_variables(data_swiss)
+
+}
+
 }
 \author{
 Stuart K. Grange

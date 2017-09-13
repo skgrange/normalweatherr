@@ -19,12 +19,12 @@ A named list containing two data frames: \code{training} and
 }
 \description{
 Use \code{set.seed} to ensure the splitting of the training and testing sets
-is reproducable.
+is reproducible.
 }
 \examples{
 \dontrun{
 
-# Make modelling reproducable
+# Make modelling reproducible
 set.seed(123)
 
 # Prepare data for modelling

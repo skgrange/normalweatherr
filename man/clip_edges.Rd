@@ -2,7 +2,7 @@
 % Please edit documentation in R/clip_edges.R
 \name{clip_edges}
 \alias{clip_edges}
-\title{Function to ``clip'' the edges of a time-series.}
+\title{Function to ''clip'' the edges of a time-series.}
 \usage{
 clip_edges(df, seconds = 31536000/2, filter = FALSE)
 }
@@ -19,7 +19,7 @@ or invalidated with \code{NA}?}
 Data frame.
 }
 \description{
-Function to ``clip'' the edges of a time-series.
+Function to ''clip'' the edges of a time-series.
 }
 \author{
 Stuart K. Grange

@@ -6,7 +6,7 @@
 #' \code{date} variable into other variables, impute missing data, and make 
 #' correct data types. 
 #' 
-#' @param df Data frame. 
+#' @param df Data frame containing air quality data. 
 #' 
 #' @param impute Should missing values be imputed? Numeric variables will be 
 #' imputed with their median while categorical variables the mode will be used.
@@ -14,6 +14,14 @@
 #' @return Data frame. 
 #' 
 #' @author Stuart K. Grange
+#' 
+#' @examples 
+#' \dontrun{
+#'
+#' # Prepare data for modelling
+#' data_swiss_daily <- add_date_variables(data_swiss)
+#' 
+#' }
 #' 
 #' @export
 add_date_variables <- function(df, impute = TRUE) {
