@@ -21,12 +21,6 @@
 #' 
 #' @param nodesize Minimum size of terminal nodes for the \code{"rf"} model. 
 #' 
-#' @param k For \code{"gam"} models, number of knots to use for the smooth 
-#' functions. 
-#' 
-#' @param bs For \code{"gam"} models, the smoothing basis to use. Default is 
-#' \code{"tp"} and represents a thin plate regression spline. 
-#' 
 #' @param verbose Should the models print progress if this is supported? 
 #' 
 #' @param output File name to export the model object as an \code{.rds} file. 
@@ -51,7 +45,7 @@
 #'   output = NA,
 #'   mtry = 5,
 #'   nodesize = 1,
-#'   verbose = FALSE
+#'   verbose = TRUE
 #' )
 #' 
 #' }
@@ -66,6 +60,9 @@ calculate_model <- function(list_input_data, variables, model = "rf", ntree = NA
   # Check inputs
   if (!class(list_input_data) == "normalweatherr_data") 
     stop("Input is not of correct class.", call. = FALSE)
+  
+  if ("value" %in% variables) 
+    stop("`value` cannot be a predictor...", call. = FALSE)
   
   # Parse argument for logic
   model <- stringr::str_to_lower(model)

@@ -31,12 +31,6 @@ decision tree.}
 \item{output}{File name to export the model object as an \code{.rds} file. 
 If not used, the model will not be exported to disc. Directories will be 
 created if necessary.}
-
-\item{k}{For \code{"gam"} models, number of knots to use for the smooth 
-functions.}
-
-\item{bs}{For \code{"gam"} models, the smoothing basis to use. Default is 
-\code{"tp"} and represents a thin plate regression spline.}
 }
 \value{
 Named list containing two data frames (contents of 
@@ -59,7 +53,7 @@ list_model <- calculate_model(
   output = NA,
   mtry = 5,
   nodesize = 1,
-  verbose = FALSE
+  verbose = TRUE
 )
 
 }
