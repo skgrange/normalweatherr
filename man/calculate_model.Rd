@@ -6,8 +6,7 @@
 variables.}
 \usage{
 calculate_model(list_input_data, variables, model = "rf", ntree = NA,
-  mtry = 3, nodesize = 3, k = 14, bs = "tp", verbose = TRUE,
-  output = NA)
+  mtry = 3, nodesize = 3, verbose = TRUE, output = NA)
 }
 \arguments{
 \item{list_input_data}{\code{normalweatherr_data} list containing the prepared
@@ -27,17 +26,17 @@ decision tree.}
 
 \item{nodesize}{Minimum size of terminal nodes for the \code{"rf"} model.}
 
-\item{k}{For \code{"gam"} models, number of knots to use for the smooth 
-functions.}
-
-\item{bs}{For \code{"gam"} models, the smoothing basis to use. Default is 
-\code{"tp"} and represents a thin plate regression spline.}
-
 \item{verbose}{Should the models print progress if this is supported?}
 
 \item{output}{File name to export the model object as an \code{.rds} file. 
 If not used, the model will not be exported to disc. Directories will be 
 created if necessary.}
+
+\item{k}{For \code{"gam"} models, number of knots to use for the smooth 
+functions.}
+
+\item{bs}{For \code{"gam"} models, the smoothing basis to use. Default is 
+\code{"tp"} and represents a thin plate regression spline.}
 }
 \value{
 Named list containing two data frames (contents of 

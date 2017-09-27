@@ -88,6 +88,10 @@ normalise_for_meteorology <- function(list_model, df, variables, n = 100,
     ungroup() %>% 
     data.frame()
   
+  # At times, the date is numeric, not sure why or when yet...
+  if (class(df[, "date"])[1] %in% c("integer", "numeric")) 
+    df[, "date"] <- as.POSIXct(df[, "date"], origin = "1970-01-01", tz = "UTC")
+  
   # Export
   if (!is.na(output[1])) saveRDS(df, output)
   
@@ -114,32 +118,9 @@ randomly_sample_meteorology <- function(list_model, df, variables, replace,
   # Transform data frame to include sampled variables
   df[variables] <- lapply(df[variables], function(x) x[index_rows])
   
-  # Different precition logic
-  if (model %in% c("randomForest.formula", "gam")) {
+  # Use models to predict
+  value_predict <- enlightenr::make_prediction(list_model, df)
     
-    # Seems to be generic
-    value_predict <- unname(predict(list_model, df))
-    
-  } else if (model == "ksvm") {
-    
-    # Not generic and returns a matrix
-    value_predict <- unname(kernlab::predict(list_model, df))[, 1]
-    
-  } else if (model == "gbm") {
-    
-    # Use a vector but needs an extra argument, comes from model object
-    value_predict <- gbm::predict.gbm(
-      list_model, 
-      df, 
-      n.trees = length(list_model$trees)
-    )
-    
-  } else {
-    
-    stop("Model not recognised.", call. = FALSE)
-    
-  }
-  
   # Build data frame of predictions
   df <- data.frame(
     date = df[, "date"],

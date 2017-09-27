@@ -61,8 +61,7 @@
 #' 
 #' @export
 calculate_model <- function(list_input_data, variables, model = "rf", ntree = NA,
-                            mtry = 3, nodesize = 3, k = 14, bs = "tp", 
-                            verbose = TRUE, output = NA) {
+                            mtry = 3, nodesize = 3, verbose = TRUE, output = NA) {
   
   # Check inputs
   if (!class(list_input_data) == "normalweatherr_data") 
@@ -162,8 +161,12 @@ calculate_model <- function(list_input_data, variables, model = "rf", ntree = NA
     smooth_terms <- variables[variables != "value"]
     
     # Build smooth terms for model
-    smooth_terms <- sapply(smooth_terms, function(x) 
-      build_smooth_terms(x, k ,bs), USE.NAMES = FALSE)
+    smooth_terms <- sapply(
+      smooth_terms, 
+      function(x) 
+        build_smooth_terms(x, k = 14 ,bs = "tp"), 
+      USE.NAMES = FALSE
+    )
     
     smooth_terms <- stringr::str_c(smooth_terms, collapse = " + ")
     
@@ -208,10 +211,13 @@ build_smooth_terms <- function(x, k, bs) {
   
   if (x == "weekday") {
     
-    # Different number of knots needed here due to fewer levels
-    x <- stringr::str_c(
-      "s(", x, ", bs = '", bs, "', k = ", 7, ")"
-    )
+    # Weekday should be an ordered factor, therefore no smooth term
+    x <- "weekday"
+    
+    # # Different number of knots needed here due to fewer levels
+    # x <- stringr::str_c(
+    #   "s(", x, ", bs = '", bs, "', k = ", 7, ")"
+    # )
     
   } else {
     
