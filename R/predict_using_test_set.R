@@ -14,7 +14,10 @@ predict_using_test_set <- function(list_model) {
     stop("Input must be a `normalweatherr_model`.", call. = FALSE)
   
   # Predict
-  value_predict <- enlightenr::make_prediction(list_model$model, list_model$testing)
+  value_predict <- enlightenr::make_prediction(
+    list_model$model, 
+    list_model$testing
+  )
   
   # Build prediction data frame
   df <- data.frame(
@@ -27,7 +30,8 @@ predict_using_test_set <- function(list_model) {
   df$value_delta <- abs(df$value - df$value_predict)
   
   # Add row counts for time series plotting
-  df <- threadr::add_row_numbers(df)
+  df$row_number <- seq(1, nrow(df))
+  df <- dplyr::select(df, row_number, dplyr::everything())
   
   return(df)
   
