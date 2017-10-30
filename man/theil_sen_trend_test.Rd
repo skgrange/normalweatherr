@@ -24,7 +24,7 @@ Data frame.
 Function to test a time series with the Theil-Sen estimator.
 }
 \seealso{
-\link{\code{TheilSen}}
+\code{\link{TheilSen}}
 }
 \author{
 Stuart K. Grange

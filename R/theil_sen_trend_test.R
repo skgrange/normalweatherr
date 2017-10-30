@@ -9,7 +9,7 @@
 #' 
 #' @param auto_correlation Should auto correlation be considered in the estimates?
 #' 
-#' @seealso \link{\code{TheilSen}}
+#' @seealso \code{\link{TheilSen}}
 #' 
 #' @return Data frame. 
 #' 
