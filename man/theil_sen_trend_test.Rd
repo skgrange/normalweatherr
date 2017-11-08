@@ -12,8 +12,8 @@ theil_sen_trend_test(df, variable = "value", deseason = FALSE,
 
 \item{variable}{Variable name to test.}
 
-\item{deseason}{Should the time series be deseaonsalised before the trend test
-is conducted.}
+\item{deseason}{Should the time series be deseaonsalised before the trend 
+test is conducted?}
 
 \item{auto_correlation}{Should auto correlation be considered in the estimates?}
 }
