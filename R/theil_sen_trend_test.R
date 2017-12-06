@@ -42,9 +42,12 @@ theil_sen_trend_test <- function(df, variable = "value", deseason = FALSE,
   # Remove duplicate observations
   df_test <- filter(df_test, is.finite(conc))
   
-  # Add a variable
+  # Add a variables
   df_test$direction <- ifelse(df_test$slope <= 0, "decreasing", "increasing")
   df_test$direction <- ifelse(df_test$slope == 0, "no_direction", df_test$direction)
+  
+  # Use 95 % here
+  df_test$significant <- ifelse(df_test$p <= 0.05, TRUE, FALSE)
   
   # Add more variables
   df_test <- mutate(
@@ -59,7 +62,8 @@ theil_sen_trend_test <- function(df, variable = "value", deseason = FALSE,
     date_start,
     date_end,
     p_value = p,
-    p_stars, 
+    p_stars,
+    significant,
     direction,
     slope, 
     intercept,
@@ -72,7 +76,7 @@ theil_sen_trend_test <- function(df, variable = "value", deseason = FALSE,
 }
 
 
-quiet <- function (x) {
+quiet <- function(x) {
   sink(tempfile())
   on.exit(sink())
   invisible(force(x))

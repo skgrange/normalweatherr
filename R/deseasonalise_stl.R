@@ -26,6 +26,10 @@ deseasonalise_stl <- function(df) {
   if (anyNA(df$value)) 
     df$value <- approx(df$value, n = length(df$value))$y
   
+  # # 
+  # year_min <- min(lubridate::year(df$date))
+  # month_min <- min(lubridate::month(df$date))
+  
   # Create time series object
   ts <- ts(df$value, start = min(df$date), frequency = 12)
   
