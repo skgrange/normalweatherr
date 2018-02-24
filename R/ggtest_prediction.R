@@ -17,7 +17,7 @@ ggtest_prediction <- function(list_model) {
   max_value <- max(df[, -1], na.rm = TRUE)
   
   # Plot
-  plot <- ggplot2::ggplot(df, aes(value, value_predict)) + 
+  plot <- ggplot2::ggplot(df, ggplot2::aes(value, value_predict)) + 
     ggplot2::geom_hex(show.legend = FALSE, na.rm = TRUE) + 
     ggplot2::theme_minimal() + 
     ggplot2::geom_abline(slope = 1, intercept = 0) + 

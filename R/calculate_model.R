@@ -50,7 +50,7 @@
 #' 
 #' }
 #' 
-#' @seealso \code{\link{prepare_input_data}}, 
+#' @seealso \code{\link{split_input_data}}, 
 #' \code{\link{normalise_for_meteorology}}
 #' 
 #' @export

@@ -11,7 +11,7 @@
 predict_using_test_set <- function(list_model) {
   
   if (!class(list_model) == "normalweatherr_model")
-    stop("Input must be a `normalweatherr_model`.", call. = FALSE)
+    stop("Input must be a `normalweatherr_model`...", call. = FALSE)
   
   # Predict
   value_predict <- enlightenr::make_prediction(
