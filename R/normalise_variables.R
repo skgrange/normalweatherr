@@ -20,6 +20,9 @@
 #' 
 #' @param nodesize Minimum size of terminal nodes for the "rf" model.
 #' 
+#' @param n_predict Number of times to sample input data and predict using the 
+#' model. 
+#' 
 #' @param verbose Should the function give messages? 
 #'
 #' @return Named list with split input data, model performance data, and 
@@ -31,7 +34,7 @@
 #' @export
 normalise_variables <- function(df, variables, variables_explanatory, 
                                 model = "rf", ntree = 10, mtry = 3, nodesize = 3,
-                                verbose = TRUE) {
+                                n_predict = 10, verbose = TRUE) {
   
   # Check
   if (anyDuplicated(variables) != 0) stop("Duplicated `variables`...")
@@ -47,6 +50,7 @@ normalise_variables <- function(df, variables, variables_explanatory,
       ntree = ntree,
       mtry = 3,
       nodesize = nodesize,
+      n_predict = n_predict,
       verbose = verbose
     )
   )
@@ -54,13 +58,22 @@ normalise_variables <- function(df, variables, variables_explanatory,
   # Give names
   names(list_models) <- variables
   
+  # Give class
+  list_models <- purrr::modify(
+    list_models, function(x) {
+      class(x) <- "normalweatherr_model"
+      return(x)
+    }
+  )
+  
   return(list_models)
   
 }
 
 
 normalise_variables_worker <- function(df, variable, variables_explanatory, 
-                                       model, ntree, mtry, nodesize, verbose) {
+                                       model, ntree, mtry, nodesize, n_predict, 
+                                       verbose) {
   
   # Check
   if (!"site" %in% names(df)) 
@@ -85,7 +98,7 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
     ntree = ntree,
     mtry = mtry,
     nodesize = nodesize,
-    verbose = FALSE
+    verbose = verbose
   )
   
   # Get performance statistics for model
@@ -108,7 +121,7 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
     list_model$model, 
     df, 
     variables = setdiff(variables_explanatory, "date_unix"),
-    n = 1000,
+    n = n_predict,
     output = NA
   )
   
@@ -133,7 +146,16 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
     
     message(
       str_date_formatted(), 
-      ": `nodesize` is very low, increase for better performance...\n"
+      ": `nodesize` is very low, increase for better performance..."
+    )
+    
+  }
+  
+  if (n_predict <= 50) {
+    
+    message(
+      str_date_formatted(), 
+      ": `n_predict` is very low, increase for better performance...\n"
     )
     
   }

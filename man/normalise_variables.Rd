@@ -5,7 +5,7 @@
 \title{Function to normalise for meteorology for many variables.}
 \usage{
 normalise_variables(df, variables, variables_explanatory, model = "rf",
-  ntree = 10, mtry = 3, nodesize = 3, verbose = TRUE)
+  ntree = 10, mtry = 3, nodesize = 3, n_predict = 10, verbose = TRUE)
 }
 \arguments{
 \item{df}{Data frame containing a \code{date} variable.}
@@ -25,6 +25,9 @@ for testing purposes, increase for usable models.}
 decision tree.}
 
 \item{nodesize}{Minimum size of terminal nodes for the "rf" model.}
+
+\item{n_predict}{Number of times to sample input data and predict using the 
+model.}
 
 \item{verbose}{Should the function give messages?}
 }
