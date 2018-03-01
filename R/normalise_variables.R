@@ -9,31 +9,58 @@
 #' @param variables_explanatory Variables to include in the model, \emph{i.e.} 
 #' the predictors. 
 #' 
-#' @param progress Type of progress bar to display. 
+#' @param model Model type to use. Default is \code{"rf"} for random forest. See 
+#' \code{\link{calculate_model}} for details. 
+#' 
+#' @param ntree Number of trees to grow for "rf" or "gbm" models. Default is low
+#' for testing purposes, increase for usable models. 
+#' 
+#' @param mtry Number of variables randomly sampled for splitting the \code{"rf"}
+#' decision tree.
+#' 
+#' @param nodesize Minimum size of terminal nodes for the "rf" model.
+#' 
+#' @param verbose Should the function give messages? 
 #'
 #' @return Named list with split input data, model performance data, and 
 #' normalised data. 
+#' 
+#' @seealso \code{\link{add_date_variables}}, \code{\link{split_input_data}}, 
+#' \code{\link{calculate_model}}, \code{\link{normalise_for_meteorology}}
 #'
 #' @export
 normalise_variables <- function(df, variables, variables_explanatory, 
-                                progress = "time") {
+                                model = "rf", ntree = 10, mtry = 3, nodesize = 3,
+                                verbose = TRUE) {
+  
+  # Check
+  if (anyDuplicated(variables) != 0) stop("Duplicated `variables`...")
   
   # Variables is plural here, but not in worker
-  plyr::llply(
-    variables,
-    function(x) normalise_variables_worker(
+  list_models <- purrr::map(
+    .x = variables,
+    .f = ~normalise_variables_worker(
       df = df,
-      variable = x,
-      variables_explanatory = variables_explanatory
-    ),
-    .progress = progress
+      variable = .x,
+      variables_explanatory = variables_explanatory,
+      model = model,
+      ntree = ntree,
+      mtry = 3,
+      nodesize = nodesize,
+      verbose = verbose
+    )
   )
+  
+  # Give names
+  names(list_models) <- variables
+  
+  return(list_models)
   
 }
 
 
 normalise_variables_worker <- function(df, variable, variables_explanatory, 
-                                       model = "rf") {
+                                       model, ntree, mtry, nodesize, verbose) {
   
   # Check
   if (!"site" %in% names(df)) 
@@ -48,17 +75,23 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
   # Make a named list
   list_input <- split_input_data(df)
   
-  message(stringr::str_c("Modelling `", variable, "`..."))
+  # Build the predictive model
+  if (verbose) message(str_date_formatted(), ": Modelling `", variable, "`...")
   
   list_model <- calculate_model(
     list_input,
     variables = variables_explanatory,
     model = model,
-    ntree = 200,
+    ntree = ntree,
+    mtry = mtry,
+    nodesize = nodesize,
     verbose = FALSE
   )
   
   # Get performance statistics for model
+  if (verbose) 
+    message(str_date_formatted(), ": Calculating model performance measures...")
+  
   df_performance <- data.frame(
     site = site,
     model = model,
@@ -69,7 +102,7 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
   )
   
   # Normalise for meteorology
-  message(stringr::str_c("Predicting `", variable, "`..."))
+  if (verbose) message(str_date_formatted(), ": Predicting `", variable, "`...")
   
   df_normalised <- normalise_for_meteorology(
     list_model$model, 
@@ -78,6 +111,8 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
     n = 1000,
     output = NA
   )
+  
+  if (verbose) message(str_date_formatted(), ": Cleaning up output.....")
   
   # Add extras to normalised data frame
   df_normalised$site <- site
@@ -93,6 +128,38 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
     "normalised" = list(df_normalised)
   )
   
+  # Print a message to the user
+  if (nodesize <= 10) {
+    
+    message(
+      str_date_formatted(), 
+      ": `nodesize` is very low, increase for better performance...\n"
+    )
+    
+  }
+  
   return(list_model)
+  
+}
+
+
+# Pulled from thereadr
+str_date_formatted <- function(date = NA, time_zone = TRUE, 
+                               fractional_seconds = TRUE) {
+  
+  # Get date if not supplied
+  if (is.na(date)[1]) date <- lubridate::now(tz = Sys.timezone())
+  
+  # Format string
+  format_date <- ifelse(
+    fractional_seconds, 
+    "%Y-%m-%d %H:%M:%OS3", 
+    "%Y-%m-%d %H:%M:%S"
+  )
+  
+  # Format
+  x <- format(date, format = format_date, usetz = time_zone)
+  
+  return(x)
   
 }

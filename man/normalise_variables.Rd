@@ -4,7 +4,8 @@
 \alias{normalise_variables}
 \title{Function to normalise for meteorology for many variables.}
 \usage{
-normalise_variables(df, variables, variables_explanatory, progress = "time")
+normalise_variables(df, variables, variables_explanatory, model = "rf",
+  ntree = 10, mtry = 3, nodesize = 3, verbose = TRUE)
 }
 \arguments{
 \item{df}{Data frame containing a \code{date} variable.}
@@ -14,7 +15,18 @@ normalise_variables(df, variables, variables_explanatory, progress = "time")
 \item{variables_explanatory}{Variables to include in the model, \emph{i.e.} 
 the predictors.}
 
-\item{progress}{Type of progress bar to display.}
+\item{model}{Model type to use. Default is \code{"rf"} for random forest. See 
+\code{\link{calculate_model}} for details.}
+
+\item{ntree}{Number of trees to grow for "rf" or "gbm" models. Default is low
+for testing purposes, increase for usable models.}
+
+\item{mtry}{Number of variables randomly sampled for splitting the \code{"rf"}
+decision tree.}
+
+\item{nodesize}{Minimum size of terminal nodes for the "rf" model.}
+
+\item{verbose}{Should the function give messages?}
 }
 \value{
 Named list with split input data, model performance data, and 
@@ -22,6 +34,10 @@ normalised data.
 }
 \description{
 Function to normalise for meteorology for many variables.
+}
+\seealso{
+\code{\link{add_date_variables}}, \code{\link{split_input_data}}, 
+\code{\link{calculate_model}}, \code{\link{normalise_for_meteorology}}
 }
 \author{
 Stuart K. Grange

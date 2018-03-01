@@ -60,7 +60,7 @@ list_model <- calculate_model(
 
 }
 \seealso{
-\code{\link{prepare_input_data}}, 
+\code{\link{split_input_data}}, 
 \code{\link{normalise_for_meteorology}}
 }
 \author{
