@@ -142,11 +142,11 @@ normalise_variables_worker <- function(df, variable, variables_explanatory,
   )
   
   # Print a message to the user
-  if (nodesize <= 10) {
+  if (ntree <= 10) {
     
     message(
       str_date_formatted(), 
-      ": `nodesize` is very low, increase for better performance..."
+      ": `ntree` is very low, increase for better performance..."
     )
     
   }
